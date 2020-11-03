@@ -1,14 +1,14 @@
-declare module '@capacitor/core' {
+declare global {
   interface PluginRegistry {
-    OneShopSms: OneShopSmsPlugin;
+    OneShopSms?: OneShopSmsPlugin;
   }
 }
 
 export interface OneShopSmsPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
-  openMessanger(
-    phoneNumber: string,
-    body?: string,
-    photos?: string[],
-  ): Promise<void>;
+  openMessanger(options: OpenMessangerOptions): Promise<void>;
+}
+
+export interface OpenMessangerOptions {
+  number: string;
+  body: string;
 }
