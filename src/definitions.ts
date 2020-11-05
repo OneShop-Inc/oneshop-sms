@@ -5,10 +5,10 @@ declare global {
 }
 
 export interface OneShopSmsPlugin {
-  openMessanger(options: OpenMessangerOptions): Promise<void>;
+  openMessenger(options: OpenMessengerOptions): Promise<void>;
 }
 
-export interface OpenMessangerOptions {
+export interface OpenMessengerOptions {
   number: string;
   body: string;
   attachments: string[];

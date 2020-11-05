@@ -27,7 +27,7 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
         controller.dismiss(animated: true, completion: nil)
     }
 
-    @objc func openMessanger(_ call: CAPPluginCall) {
+    @objc func openMessenger(_ call: CAPPluginCall) {
         self.pluginCall = call
         
         let number = call.getString("number") ?? ""

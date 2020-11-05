@@ -10,7 +10,7 @@ import com.getcapacitor.PluginMethod;
 public class OneShopSms extends Plugin {
 
     @PluginMethod
-    public void echo(PluginCall call) {
+    public void openMessenger(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
