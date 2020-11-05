@@ -9,11 +9,11 @@ import MessageUI
 public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
 
     var pluginCall: CAPPluginCall?
-    
+
     public func messageComposeViewController(
         _ controller: MFMessageComposeViewController,
         didFinishWith result: MessageComposeResult) {
-        
+
         switch (result.rawValue) {
             case MessageComposeResult.cancelled.rawValue:
                 self.pluginCall!.reject("SEND_CANCELLED")
@@ -24,30 +24,39 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
             default:
                 self.pluginCall!.reject("ERR_SEND_UNKNOWN_STATE")
         }
-        
         controller.dismiss(animated: true, completion: nil)
     }
-    
+
     @objc func openMessanger(_ call: CAPPluginCall) {
         self.pluginCall = call
         
         let number = call.getString("number") ?? ""
         let body = call.getString("body") ?? ""
+
+        let attachments = call.getArray("attachments", String.self) ?? []
         
         if !MFMessageComposeViewController.canSendText() {
             call.reject("ERR_SERVICE_NOTFOUND")
             return
         }
-        
+
+        // Present the view controller modally.
         DispatchQueue.main.async {
+            let smsHelper = SmsHelper()
             let composeVC = MFMessageComposeViewController()
+
             composeVC.messageComposeDelegate = self
             composeVC.body = body
             if (number != "") {
                 composeVC.recipients = [number]
             }
-            composeVC.disableUserAttachments()
-            self.bridge.viewController.present(composeVC,  animated: true, completion: nil)
+            
+            attachments.forEach { path in
+                let file = smsHelper.getFile(path)
+                composeVC.addAttachmentURL(file!, withAlternateFilename: nil)
+            }
+
+            self.bridge.viewController.present(composeVC, animated: true, completion: nil);
         }
     }
 }

@@ -11,4 +11,5 @@ export interface OneShopSmsPlugin {
 export interface OpenMessangerOptions {
   number: string;
   body: string;
+  attachments: string[];
 }
