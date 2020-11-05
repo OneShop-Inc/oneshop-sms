@@ -90,7 +90,7 @@ public class OneShopSms extends Plugin {
         if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
             startActivityForResult(call, smsIntent, SMS_INTENT_REQUEST_CODE);
         } else {
-            call.reject(ERR_SERVICE_NOTFOUND);
+            call.reject(ERR_SERVICE_NOT_FOUND);
         }
     }
 
