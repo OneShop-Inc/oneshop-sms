@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
+import android.os.TransactionTooLargeException;
 import android.util.Log;
 
 import com.getcapacitor.NativePlugin;
@@ -16,7 +16,6 @@ import com.getcapacitor.PluginMethod;
 import org.json.JSONException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +25,8 @@ import java.util.Base64;
 public class OneShopSms extends Plugin {
     private static final String TAG = "MyActivity";
 
-    static final int SMS_INTENT_REQUEST_CODE = 2311;
-    private static final String ERR_SERVICE_NOTFOUND = "ERR_SERVICE_NOTFOUND";
+    private static final int SMS_INTENT_REQUEST_CODE = 2311;
+    private static final String ERR_SERVICE_NOT_FOUND = "ERR_SERVICE_NOT_FOUND";
 
     @SuppressLint("NewApi")
     private Uri getFileName(String attachment, int i) {
@@ -51,11 +50,9 @@ public class OneShopSms extends Plugin {
         FileOutputStream fOut = null;
         try {
             fOut = new FileOutputStream(file);
-            decodedByte.compress(Bitmap.CompressFormat.JPEG, 40, fOut);
+            decodedByte.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
             fOut.flush();
             fOut.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +72,9 @@ public class OneShopSms extends Plugin {
         smsIntent.putExtra("sms_body", body);
         // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
         smsIntent.putExtra("address", number);
-        smsIntent.setDataAndType(Uri.parse("smsto:" + Uri.encode(number)), "image/*");
+        smsIntent.setData(Uri.parse("smsto:" + Uri.encode(number)));
+        smsIntent.setType("image/*");
+
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 ArrayList uris = new ArrayList();
