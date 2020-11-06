@@ -39,6 +39,10 @@ public class OneShopSms extends Plugin {
 
     @SuppressLint("NewApi")
     private Uri getFileName(String attachment, int i) {
+        // Todo handle variable file path types like iOS
+        // has prefix:
+        // http, www/, file://, data:, default
+
         String imageDataBytes = attachment.substring(attachment.indexOf(",")+1);
         byte[] decodedString = Base64.getDecoder().decode(imageDataBytes);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
