@@ -53,7 +53,12 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
             
             attachments.forEach { path in
                 let file = smsHelper.getFile(path)
-                composeVC.addAttachmentURL(file!, withAlternateFilename: nil)
+                do {
+                    let data = try Data(contentsOf: file!)
+                    composeVC.addAttachmentData(data, typeIdentifier: "image/jpeg", filename: "image.jpeg")
+                } catch {
+                    print("oop")
+                }
             }
 
             self.bridge.viewController.present(composeVC, animated: true, completion: nil);
