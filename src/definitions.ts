@@ -1,10 +1,10 @@
 declare global {
   interface PluginRegistry {
-    OneShopSms?: OneShopSmsPlugin;
+    OneshopSms?: OneshopSmsPlugin;
   }
 }
 
-export interface OneShopSmsPlugin {
+export interface OneshopSmsPlugin {
   openMessenger(options: OpenMessengerOptions): Promise<void>;
 }
 

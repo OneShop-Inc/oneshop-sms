@@ -5,8 +5,8 @@ import MessageUI
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
  */
-@objc(OneShopSms)
-public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
+@objc(OneshopSms)
+public class OneshopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
 
     var pluginCall: CAPPluginCall?
 

@@ -1,5 +1,5 @@
 {
-  "name": "one-shop-sms",
+  "name": "oneshop-sms",
   "version": "0.0.1",
   "description": "sms",
   "main": "dist/plugin.js",
@@ -37,7 +37,7 @@
     "dist/",
     "ios/",
     "android/",
-    "OneShopSms.podspec"
+    "OneshopSms.podspec"
   ],
   "keywords": [
     "capacitor",
