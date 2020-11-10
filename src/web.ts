@@ -1,10 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
-import { OneshopSmsPlugin, OpenMessengerOptions } from './definitions';
+import { OneShopSmsPlugin, OpenMessengerOptions } from './definitions';
 
-export class OneshopSmsWeb extends WebPlugin implements OneshopSmsPlugin {
+export class OneShopSmsWeb extends WebPlugin implements OneShopSmsPlugin {
   constructor() {
     super({
-      name: 'OneshopSms',
+      name: 'OneShopSms',
       platforms: ['web'],
     });
   }
@@ -17,9 +17,9 @@ export class OneshopSmsWeb extends WebPlugin implements OneshopSmsPlugin {
   }
 }
 
-const OneshopSms = new OneshopSmsWeb();
+const OneShopSms = new OneShopSmsWeb();
 
-export { OneshopSms };
+export { OneShopSms };
 
 import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(OneshopSms);
+registerWebPlugin(OneShopSms);

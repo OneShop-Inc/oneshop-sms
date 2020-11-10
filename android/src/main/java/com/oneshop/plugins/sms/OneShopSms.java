@@ -20,10 +20,10 @@ import java.util.Base64;
 import org.json.JSONException;
 
 @NativePlugin(
-    requestCodes = { OneshopSms.SMS_INTENT_REQUEST_CODE },
+    requestCodes = { OneShopSms.SMS_INTENT_REQUEST_CODE },
     permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE }
 )
-public class OneshopSms extends Plugin {
+public class OneShopSms extends Plugin {
 
     private static final String TAG = "MyActivity";
 

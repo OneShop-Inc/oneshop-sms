@@ -37,7 +37,7 @@
     "dist/",
     "ios/",
     "android/",
-    "OneshopSms.podspec"
+    "OneShopSms.podspec"
   ],
   "keywords": [
     "capacitor",

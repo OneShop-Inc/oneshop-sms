@@ -10,10 +10,10 @@ var capacitorPlugin = (function (exports, core) {
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    class OneshopSmsWeb extends core.WebPlugin {
+    class OneShopSmsWeb extends core.WebPlugin {
         constructor() {
             super({
-                name: 'OneshopSms',
+                name: 'OneShopSms',
                 platforms: ['web'],
             });
         }
@@ -23,11 +23,11 @@ var capacitorPlugin = (function (exports, core) {
             });
         }
     }
-    const OneshopSms = new OneshopSmsWeb();
-    core.registerWebPlugin(OneshopSms);
+    const OneShopSms = new OneShopSmsWeb();
+    core.registerWebPlugin(OneShopSms);
 
-    exports.OneshopSms = OneshopSms;
-    exports.OneshopSmsWeb = OneshopSmsWeb;
+    exports.OneShopSms = OneShopSms;
+    exports.OneShopSmsWeb = OneShopSmsWeb;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

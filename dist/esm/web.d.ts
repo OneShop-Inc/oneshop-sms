@@ -1,8 +1,8 @@
 import { WebPlugin } from '@capacitor/core';
-import { OneshopSmsPlugin, OpenMessengerOptions } from './definitions';
-export declare class OneshopSmsWeb extends WebPlugin implements OneshopSmsPlugin {
+import { OneShopSmsPlugin, OpenMessengerOptions } from './definitions';
+export declare class OneShopSmsWeb extends WebPlugin implements OneShopSmsPlugin {
     constructor();
     openMessenger(options: OpenMessengerOptions): Promise<void>;
 }
-declare const OneshopSms: OneshopSmsWeb;
-export { OneshopSms };
+declare const OneShopSms: OneShopSmsWeb;
+export { OneShopSms };

@@ -6,7 +6,7 @@
 
 // Define the plugin using the CAP_PLUGIN Macro, and
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
-CAP_PLUGIN(OneshopSms, "OneshopSms",
+CAP_PLUGIN(OneShopSms, "OneShopSms",
            CAP_PLUGIN_METHOD(openMessenger, CAPPluginReturnPromise);
 )
 

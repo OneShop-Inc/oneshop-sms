@@ -8,10 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { WebPlugin } from '@capacitor/core';
-export class OneshopSmsWeb extends WebPlugin {
+export class OneShopSmsWeb extends WebPlugin {
     constructor() {
         super({
-            name: 'OneshopSms',
+            name: 'OneShopSms',
             platforms: ['web'],
         });
     }
@@ -21,8 +21,8 @@ export class OneshopSmsWeb extends WebPlugin {
         });
     }
 }
-const OneshopSms = new OneshopSmsWeb();
-export { OneshopSms };
+const OneShopSms = new OneShopSmsWeb();
+export { OneShopSms };
 import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(OneshopSms);
+registerWebPlugin(OneShopSms);
 //# sourceMappingURL=web.js.map
