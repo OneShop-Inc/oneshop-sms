@@ -1,6 +1,6 @@
 {
   "name": "oneshop-sms",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "sms",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
