@@ -1,5 +1,5 @@
 {
-  "name": "oneshop-sms",
+  "name": "one-shop-sms",
   "version": "0.1.0",
   "description": "sms",
   "main": "dist/plugin.js",
