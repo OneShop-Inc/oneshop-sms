@@ -20,7 +20,7 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
             case MessageComposeResult.failed.rawValue:
                 self.pluginCall!.reject("ERR_SEND_FAILED")
             case MessageComposeResult.sent.rawValue:
-                self.pluginCall!.success()
+                self.pluginCall!.resolve()
             default:
                 self.pluginCall!.reject("ERR_SEND_UNKNOWN_STATE")
         }
@@ -61,7 +61,7 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
                 }
             }
 
-            self.bridge.viewController.present(composeVC, animated: true, completion: nil);
+            self.bridge?.viewController?.present(composeVC, animated: true, completion: nil);
         }
     }
 }
