@@ -1,4 +1,4 @@
-var capacitorExample = (function (exports, core) {
+var capacitorOneShopSms = (function (exports, core) {
     'use strict';
 
     const OneShopSms = core.registerPlugin('OneShopSms', {

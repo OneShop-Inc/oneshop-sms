@@ -4,6 +4,6 @@ export interface OneShopSmsPlugin {
 
 export interface OpenMessengerOptions {
   number: string;
-  body: string;
-  attachments: string[];
+  body?: string;
+  attachments?: string[];
 }

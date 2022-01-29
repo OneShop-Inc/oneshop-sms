@@ -8,24 +8,25 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
-import com.getcapacitor.annotation.CapacitorPlugin;
+import androidx.activity.result.ActivityResult;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import org.json.JSONException;
-import androidx.activity.result.ActivityResult;
-import com.getcapacitor.annotation.ActivityCallback;
 
 @CapacitorPlugin(
-    name = "OneShopSms"
+    name = "OneShopSms",
     requestCodes = { OneShopSms.SMS_INTENT_REQUEST_CODE },
-    permissions = { 
-        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }), 
+    permissions = {
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }),
         @Permission(strings = { Manifest.permission.READ_EXTERNAL_STORAGE })
     }
 )
@@ -47,7 +48,7 @@ public class OneShopSms extends Plugin {
         byte[] decodedString = Base64.getDecoder().decode(imageDataBytes);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-    String saveFilePath = getContext().getExternalCacheDir() + "";
+        String saveFilePath = getContext().getExternalCacheDir() + "";
         File dir = new File(saveFilePath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -115,7 +116,7 @@ public class OneShopSms extends Plugin {
 
             // Does not trigger handleOnActivityResult
             // getContext().startActivity(smsIntent);
-            startActivityForResult(call, smsIntent,"onSmsRequestResult")
+            startActivityForResult(call, smsIntent, "onSmsRequestResult");
         } else {
             call.reject(ERR_SERVICE_NOT_FOUND);
         }
