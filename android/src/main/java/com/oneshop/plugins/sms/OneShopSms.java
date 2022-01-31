@@ -120,7 +120,6 @@ public class OneShopSms extends Plugin {
         } else {
             call.reject(ERR_SERVICE_NOT_FOUND);
         }
-
         // call.resolve();
     }
 
@@ -150,7 +149,7 @@ public class OneShopSms extends Plugin {
 
     @ActivityCallback
     private void onSmsRequestResult(PluginCall call, ActivityResult result) {
-        Log.d(TAG, "onSmsRequestResult")
+        Log.d(TAG, "onSmsRequestResult");
         call.resolve();
     }
 }
