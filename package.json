@@ -1,6 +1,6 @@
 {
   "name": "@oneshop-inc/sms",
-  "version": "1.0.4",
+  "version": "4.0.0-alpha-1",
   "description": "capacitor sms plugin, similar to @byteowls/capacitor-sms but uses techniques from cordova-sms/cordova-sms-plugin to handle multiple attachments",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
@@ -22,21 +22,22 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@capacitor/android": "3.4.0",
-    "@capacitor/core": "3.4.0",
-    "@capacitor/ios": "3.4.0",
-    "@ionic/prettier-config": "^1.0.0",
-    "@ionic/swiftlint-config": "^1.0.0",
-    "@rollup/plugin-node-resolve": "^8.1.0",
-    "prettier": "^2.0.5",
-    "prettier-plugin-java": "^1.6.1",
-    "rimraf": "^3.0.0",
-    "rollup": "^2.21.0",
-    "swiftlint": "^1.0.1",
-    "typescript": "4.1.5"
+    "@capacitor/android": "4.2.0",
+    "@capacitor/cli": "4.2.0",
+    "@capacitor/core": "4.2.0",
+    "@capacitor/ios": "4.2.0",
+    "@ionic/prettier-config": "2.0.0",
+    "@ionic/swiftlint-config": "1.1.2",
+    "@rollup/plugin-node-resolve": "14.1.0",
+    "prettier": "2.7.1",
+    "prettier-plugin-java": "1.6.2",
+    "rimraf": "3.0.2",
+    "rollup": "2.79.0",
+    "swiftlint": "1.0.1",
+    "typescript": "4.8.3"
   },
   "peerDependencies": {
-    "@capacitor/core": "^3.0.0"
+    "@capacitor/core": "^4.0.0"
   },
   "files": [
     "dist/",
