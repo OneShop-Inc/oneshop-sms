@@ -362,18 +362,22 @@ public class OneShopSms extends Plugin {
 
             // Verify that the activity resolves the intent and start it
             if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
-                getActivity()
-                    .runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                startActivityForResult(call, intent, "onShareResult");
-                            }
-                        }
-                    );
+                startActivityForResult(call, intent, "onShareResult");
             }
+            // leaving on background thread, crashes on main thread
+            // if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
+            //     getActivity()
+            //         .runOnUiThread(
+            //             new Runnable() {
+            //                 @Override
+            //                 public void run() {
+            //                     startActivityForResult(call, intent, "onShareResult");
+            //                 }
+            //             }
+            //         );
+            // }
         } catch (Exception e) {
-            call.reject("Something whent wrong sharing");
+            call.reject("Something went wrong sharing");
         }
     }
 
