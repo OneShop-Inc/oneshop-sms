@@ -17,6 +17,7 @@ FOUNDATION_EXPORT const unsigned char PluginVersionString[];
 @property(retain) NSString* tempStoredFile;
 
 - (NSURL *)getFile: (NSString *)fileName;
+- (NSData *)getImageData:(NSString *)imageName;
 
 @end
 
