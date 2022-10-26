@@ -8,6 +8,8 @@
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
 CAP_PLUGIN(OneShopSms, "OneShopSms",
            CAP_PLUGIN_METHOD(openMessenger, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(share, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(canShare, CAPPluginReturnPromise);
 )
 
 @implementation SmsHelper
@@ -53,6 +55,30 @@ CAP_PLUGIN(OneShopSms, "OneShopSms",
     [fileData writeToFile:filePath atomically:YES];
     _tempStoredFile = filePath;
     return filePath;
+}
+
+// Pulled from https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin and slightly modified
+- (NSData *)getImageData:(NSString *)imageName {
+  NSData *imageData = nil;
+  if (imageName != (id)[NSNull null]) {
+    if ([imageName hasPrefix:@"http"]) {
+      imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:imageName]];
+    } else if ([imageName hasPrefix:@"file://"]) {
+      imageData = [NSData dataWithContentsOfFile:[[NSURL URLWithString:imageName] path]];
+    } else if ([imageName hasPrefix:@"data:"]) {
+      // using a base64 encoded string
+      NSURL *imageURL = [NSURL URLWithString:imageName];
+      imageData = [NSData dataWithContentsOfURL:imageURL];
+    } else if ([imageName hasPrefix:@"assets-library://"]) {
+      // use assets-library
+      NSURL *imageURL = [NSURL URLWithString:imageName];
+      imageData = [NSData dataWithContentsOfURL:imageURL];
+    } else {
+      // assume anywhere else, on the local filesystem
+      imageData = [NSData dataWithContentsOfFile:imageName];
+    }
+  }
+  return imageData;
 }
 
 @end

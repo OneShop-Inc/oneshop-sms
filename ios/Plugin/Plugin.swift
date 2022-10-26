@@ -64,4 +64,46 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
             self.bridge?.viewController?.present(composeVC, animated: true, completion: nil);
         }
     }
+
+    @objc func canShare(_ call: CAPPluginCall) {
+      if let _ = URL(string: "instagram-stories://share") {
+        call.resolve(["value": true])
+      } else {
+        call.resolve(["value": false])
+      }
+    }
+    
+    @objc func share(_ call: CAPPluginCall) {
+      var urlComps = URLComponents(string: "instagram-stories://share")!
+      if let appId = call.getString("appId") {
+        urlComps.queryItems = [URLQueryItem(name: "source_application",value: appId)]
+      }
+
+      if let url = urlComps.url {
+        if UIApplication.shared.canOpenURL(url as URL) {
+          let imageData = SmsHelper().getImageData(call.getString("image"))
+          
+          let pasteboardItems: [String: Any] = [
+            "com.instagram.sharedSticker.stickerImage": imageData!,
+            "com.instagram.sharedSticker.backgroundTopColor": call.getString("topColor", "#777777"),
+            "com.instagram.sharedSticker.backgroundBottomColor": call.getString("bottomColor", "#bbbbbb")
+          ]
+          let pasteboardOptions = [
+            UIPasteboard.OptionsKey.expirationDate: Date().addingTimeInterval(300)
+          ]
+          UIPasteboard.general.setItems([pasteboardItems], options:pasteboardOptions)
+          DispatchQueue.main.async {
+            UIApplication.shared.open(url) {success in if success {
+              call.resolve()
+            } else {
+              call.reject("error opening url")
+            }}
+          }
+        } else {
+          call.reject("can not share to instagram")
+        }
+      } else {
+        call.reject("can not create url")
+      }
+    }
 }
