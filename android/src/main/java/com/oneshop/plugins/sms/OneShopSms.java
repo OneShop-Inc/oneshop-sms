@@ -9,10 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import androidx.activity.result.ActivityResult;
 import androidx.core.content.FileProvider;
-
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -20,7 +20,6 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,12 +28,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import android.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.json.JSONException;
 
 @CapacitorPlugin(
@@ -104,7 +101,7 @@ public class OneShopSms extends Plugin {
 
     private static String getFileNameShare(String url) {
         if (url.endsWith("/")) {
-            url = url.substring(0, url.length()-1);
+            url = url.substring(0, url.length() - 1);
         }
         final String pattern = ".*/([^?#]+)?";
         Pattern r = Pattern.compile(pattern);
@@ -130,79 +127,80 @@ public class OneShopSms extends Plugin {
         if (dotIndex == -1) {
             return type;
         }
-        final String end = fileName.substring(dotIndex+1, fileName.length()).toLowerCase();
+        final String end = fileName.substring(dotIndex + 1, fileName.length()).toLowerCase();
         String fromMap = MIME_Map.get(end);
         return fromMap == null ? type : fromMap;
     }
 
     private static final Map<String, String> MIME_Map = new HashMap<String, String>();
+
     static {
-        MIME_Map.put("3gp",   "video/3gpp");
-        MIME_Map.put("apk",   "application/vnd.android.package-archive");
-        MIME_Map.put("asf",   "video/x-ms-asf");
-        MIME_Map.put("avi",   "video/x-msvideo");
-        MIME_Map.put("bin",   "application/octet-stream");
-        MIME_Map.put("bmp",   "image/bmp");
-        MIME_Map.put("c",     "text/plain");
+        MIME_Map.put("3gp", "video/3gpp");
+        MIME_Map.put("apk", "application/vnd.android.package-archive");
+        MIME_Map.put("asf", "video/x-ms-asf");
+        MIME_Map.put("avi", "video/x-msvideo");
+        MIME_Map.put("bin", "application/octet-stream");
+        MIME_Map.put("bmp", "image/bmp");
+        MIME_Map.put("c", "text/plain");
         MIME_Map.put("class", "application/octet-stream");
-        MIME_Map.put("conf",  "text/plain");
-        MIME_Map.put("cpp",   "text/plain");
-        MIME_Map.put("doc",   "application/msword");
-        MIME_Map.put("docx",  "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        MIME_Map.put("xls",   "application/vnd.ms-excel");
-        MIME_Map.put("xlsx",  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        MIME_Map.put("exe",   "application/octet-stream");
-        MIME_Map.put("gif",   "image/gif");
-        MIME_Map.put("gtar",  "application/x-gtar");
-        MIME_Map.put("gz",    "application/x-gzip");
-        MIME_Map.put("h",     "text/plain");
-        MIME_Map.put("htm",   "text/html");
-        MIME_Map.put("html",  "text/html");
-        MIME_Map.put("jar",   "application/java-archive");
-        MIME_Map.put("java",  "text/plain");
-        MIME_Map.put("jpeg",  "image/jpeg");
-        MIME_Map.put("jpg",   "image/*");
-        MIME_Map.put("js",    "application/x-javascript");
-        MIME_Map.put("log",   "text/plain");
-        MIME_Map.put("m3u",   "audio/x-mpegurl");
-        MIME_Map.put("m4a",   "audio/mp4a-latm");
-        MIME_Map.put("m4b",   "audio/mp4a-latm");
-        MIME_Map.put("m4p",   "audio/mp4a-latm");
-        MIME_Map.put("m4u",   "video/vnd.mpegurl");
-        MIME_Map.put("m4v",   "video/x-m4v");
-        MIME_Map.put("mov",   "video/quicktime");
-        MIME_Map.put("mp2",   "audio/x-mpeg");
-        MIME_Map.put("mp3",   "audio/x-mpeg");
-        MIME_Map.put("mp4",   "video/mp4");
-        MIME_Map.put("mpc",   "application/vnd.mpohun.certificate");
-        MIME_Map.put("mpe",   "video/mpeg");
-        MIME_Map.put("mpeg",  "video/mpeg");
-        MIME_Map.put("mpg",   "video/mpeg");
-        MIME_Map.put("mpg4",  "video/mp4");
-        MIME_Map.put("mpga",  "audio/mpeg");
-        MIME_Map.put("msg",   "application/vnd.ms-outlook");
-        MIME_Map.put("ogg",   "audio/ogg");
-        MIME_Map.put("pdf",   "application/pdf");
-        MIME_Map.put("png",   "image/png");
-        MIME_Map.put("pps",   "application/vnd.ms-powerpoint");
-        MIME_Map.put("ppt",   "application/vnd.ms-powerpoint");
-        MIME_Map.put("pptx",  "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-        MIME_Map.put("prop",  "text/plain");
-        MIME_Map.put("rc",    "text/plain");
-        MIME_Map.put("rmvb",  "audio/x-pn-realaudio");
-        MIME_Map.put("rtf",   "application/rtf");
-        MIME_Map.put("sh",    "text/plain");
-        MIME_Map.put("tar",   "application/x-tar");
-        MIME_Map.put("tgz",   "application/x-compressed");
-        MIME_Map.put("txt",   "text/plain");
-        MIME_Map.put("wav",   "audio/x-wav");
-        MIME_Map.put("wma",   "audio/x-ms-wma");
-        MIME_Map.put("wmv",   "audio/x-ms-wmv");
-        MIME_Map.put("wps",   "application/vnd.ms-works");
-        MIME_Map.put("xml",   "text/plain");
-        MIME_Map.put("z",     "application/x-compress");
-        MIME_Map.put("zip",   "application/x-zip-compressed");
-        MIME_Map.put("",       "*/*");
+        MIME_Map.put("conf", "text/plain");
+        MIME_Map.put("cpp", "text/plain");
+        MIME_Map.put("doc", "application/msword");
+        MIME_Map.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        MIME_Map.put("xls", "application/vnd.ms-excel");
+        MIME_Map.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        MIME_Map.put("exe", "application/octet-stream");
+        MIME_Map.put("gif", "image/gif");
+        MIME_Map.put("gtar", "application/x-gtar");
+        MIME_Map.put("gz", "application/x-gzip");
+        MIME_Map.put("h", "text/plain");
+        MIME_Map.put("htm", "text/html");
+        MIME_Map.put("html", "text/html");
+        MIME_Map.put("jar", "application/java-archive");
+        MIME_Map.put("java", "text/plain");
+        MIME_Map.put("jpeg", "image/jpeg");
+        MIME_Map.put("jpg", "image/*");
+        MIME_Map.put("js", "application/x-javascript");
+        MIME_Map.put("log", "text/plain");
+        MIME_Map.put("m3u", "audio/x-mpegurl");
+        MIME_Map.put("m4a", "audio/mp4a-latm");
+        MIME_Map.put("m4b", "audio/mp4a-latm");
+        MIME_Map.put("m4p", "audio/mp4a-latm");
+        MIME_Map.put("m4u", "video/vnd.mpegurl");
+        MIME_Map.put("m4v", "video/x-m4v");
+        MIME_Map.put("mov", "video/quicktime");
+        MIME_Map.put("mp2", "audio/x-mpeg");
+        MIME_Map.put("mp3", "audio/x-mpeg");
+        MIME_Map.put("mp4", "video/mp4");
+        MIME_Map.put("mpc", "application/vnd.mpohun.certificate");
+        MIME_Map.put("mpe", "video/mpeg");
+        MIME_Map.put("mpeg", "video/mpeg");
+        MIME_Map.put("mpg", "video/mpeg");
+        MIME_Map.put("mpg4", "video/mp4");
+        MIME_Map.put("mpga", "audio/mpeg");
+        MIME_Map.put("msg", "application/vnd.ms-outlook");
+        MIME_Map.put("ogg", "audio/ogg");
+        MIME_Map.put("pdf", "application/pdf");
+        MIME_Map.put("png", "image/png");
+        MIME_Map.put("pps", "application/vnd.ms-powerpoint");
+        MIME_Map.put("ppt", "application/vnd.ms-powerpoint");
+        MIME_Map.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        MIME_Map.put("prop", "text/plain");
+        MIME_Map.put("rc", "text/plain");
+        MIME_Map.put("rmvb", "audio/x-pn-realaudio");
+        MIME_Map.put("rtf", "application/rtf");
+        MIME_Map.put("sh", "text/plain");
+        MIME_Map.put("tar", "application/x-tar");
+        MIME_Map.put("tgz", "application/x-compressed");
+        MIME_Map.put("txt", "text/plain");
+        MIME_Map.put("wav", "audio/x-wav");
+        MIME_Map.put("wma", "audio/x-ms-wma");
+        MIME_Map.put("wmv", "audio/x-ms-wmv");
+        MIME_Map.put("wps", "application/vnd.ms-works");
+        MIME_Map.put("xml", "text/plain");
+        MIME_Map.put("z", "application/x-compress");
+        MIME_Map.put("zip", "application/x-zip-compressed");
+        MIME_Map.put("", "*/*");
     }
 
     // pulled from https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
@@ -247,7 +245,7 @@ public class OneShopSms extends Plugin {
     private Uri getFileUriAndSetType(Intent sendIntent, String dir, String image) throws IOException {
         // we're assuming an image, but this can be any filetype you like
         String localImage = image;
-        if (image.endsWith("mp4") || image.endsWith("mov") || image.endsWith("3gp")){
+        if (image.endsWith("mp4") || image.endsWith("mov") || image.endsWith("3gp")) {
             sendIntent.setType("video/*");
         } else if (image.endsWith("mp3")) {
             sendIntent.setType("audio/x-mpeg");
@@ -338,7 +336,8 @@ public class OneShopSms extends Plugin {
         try {
             final String dir = getDownloadDir();
             Uri fileUri = getFileUriAndSetType(intent, dir, imageString);
-            fileUri = FileProvider.getUriForFile(getContext(), getActivity().getPackageName()+".sharing.provider", new File(fileUri.getPath()));
+            fileUri =
+                FileProvider.getUriForFile(getContext(), getActivity().getPackageName() + ".sharing.provider", new File(fileUri.getPath()));
 
             if (appId != "") {
                 intent.putExtra("source_application", appId);
@@ -363,21 +362,23 @@ public class OneShopSms extends Plugin {
 
             // Verify that the activity resolves the intent and start it
             if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivityForResult(call, intent, "onShareResult");
-                    }
-                });
+                getActivity()
+                    .runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                startActivityForResult(call, intent, "onShareResult");
+                            }
+                        }
+                    );
             }
-        } catch  (Exception e) {
+        } catch (Exception e) {
             call.reject("Something whent wrong sharing");
         }
     }
 
     @PluginMethod
     public void canShare(PluginCall call) {
-        Log.d(TAG, "canShare call");
         JSObject ret = new JSObject();
         try {
             getActivity().getPackageManager().getApplicationInfo("com.instagram.android", 0);
@@ -385,7 +386,6 @@ public class OneShopSms extends Plugin {
         } catch (PackageManager.NameNotFoundException e) {
             ret.put("value", false);
         }
-        Log.d(TAG, "canShare resolve" + ret);
         call.resolve(ret);
     }
 
@@ -467,7 +467,6 @@ public class OneShopSms extends Plugin {
 
     @ActivityCallback
     private void onShareResult(PluginCall call, ActivityResult result) {
-        Log.d(TAG, "onShareResult: " + result.getResultCode());
         if (result.getResultCode() == 0) {
             call.resolve();
         } else {
