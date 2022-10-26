@@ -348,10 +348,10 @@ public class OneShopSms extends Plugin {
             intent.putExtra("interactive_asset_uri", fileUri);
 
             if (topColor != "") {
-                intent.putExtra("top_background_color", "#33FF33");
+                intent.putExtra("top_background_color", topColor);
             }
             if (bottomColor != "") {
-                intent.putExtra("bottom_background_color", "#FF00FF");
+                intent.putExtra("bottom_background_color", bottomColor);
             }
 
             // Instantiate an activity

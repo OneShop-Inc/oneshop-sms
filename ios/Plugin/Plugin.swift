@@ -85,8 +85,8 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
           
           let pasteboardItems: [String: Any] = [
             "com.instagram.sharedSticker.stickerImage": imageData!,
-            "com.instagram.sharedSticker.backgroundTopColor": call.getString("topColor", "#777777"),
-            "com.instagram.sharedSticker.backgroundBottomColor": call.getString("bottomColor", "#bbbbbb")
+            "com.instagram.sharedSticker.backgroundTopColor": call.getString("topColor", "#444444"),
+            "com.instagram.sharedSticker.backgroundBottomColor": call.getString("bottomColor", "#444444")
           ]
           let pasteboardOptions = [
             UIPasteboard.OptionsKey.expirationDate: Date().addingTimeInterval(300)
