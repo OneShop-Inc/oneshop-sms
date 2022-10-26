@@ -1,6 +1,6 @@
 {
   "name": "@oneshop-inc/sms",
-  "version": "4.0.0-alpha-1",
+  "version": "4.0.1-alpha-1",
   "description": "capacitor sms plugin, similar to @byteowls/capacitor-sms but uses techniques from cordova-sms/cordova-sms-plugin to handle multiple attachments",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
