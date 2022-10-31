@@ -13,6 +13,7 @@ export interface ShareOptions {
     appId?: string;
     topColor?: string;
     bottomColor?: string;
+    shareToStories?: boolean;
 }
 export interface CanShareResult {
     value: boolean;

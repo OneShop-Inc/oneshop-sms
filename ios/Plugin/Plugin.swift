@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import MessageUI
+import Photos
 /**
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
@@ -72,17 +73,59 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
         call.resolve(["value": false])
       }
     }
-    
-    @objc func share(_ call: CAPPluginCall) {
+
+  // https://stackoverflow.com/questions/38303413/ios-sharing-image-to-instagram-without-using-a-menu-display
+  func saveToCameraRoll(image: UIImage, completion: @escaping (URL?) -> Void) {
+    var placeHolder: PHObjectPlaceholder? = nil
+    PHPhotoLibrary.shared().performChanges({
+      let creationRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+      placeHolder = creationRequest.placeholderForCreatedAsset!
+    }, completionHandler: { success, error in
+      guard success, let placeholder = placeHolder else {
+        completion(nil)
+        return
+      }
+      let assets = PHAsset.fetchAssets(withLocalIdentifiers: [placeholder.localIdentifier], options: nil)
+      guard let asset = assets.firstObject else {
+        completion(nil)
+        return
+      }
+      asset.requestContentEditingInput(with: nil, completionHandler: { (editingInput, _) in
+        completion(editingInput?.fullSizeImageURL)
+      })
+    })
+  }
+
+  // https://stackoverflow.com/questions/38303413/ios-sharing-image-to-instagram-without-using-a-menu-display
+  func shareToInstagram(_ theImageToShare: UIImage){
+    self.saveToCameraRoll(image: theImageToShare) { (theUrl) in
+      if let url = theUrl {
+        DispatchQueue.main.async {
+          if let path = url.absoluteString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed){
+            let instagram = URL(string: "instagram://library?AssetPath=\(path)")
+            UIApplication.shared.open(instagram!)
+          }
+        }
+      }
+    }
+  }
+
+  @objc func share(_ call: CAPPluginCall) {
+    let imageData = SmsHelper().getImageData(call.getString("image"))
+
+    guard let image = UIImage(data: imageData!)?.scaleImageWithAspectToWidth(640) else {
+      call.reject("something went wrong sharing the image")
+      return
+    }
+
+    if (call.getBool("shareToStories", false)) {
       var urlComps = URLComponents(string: "instagram-stories://share")!
       if let appId = call.getString("appId") {
-        urlComps.queryItems = [URLQueryItem(name: "source_application",value: appId)]
+        urlComps.queryItems = [URLQueryItem(name: "source_application", value: appId)]
       }
 
       if let url = urlComps.url {
         if UIApplication.shared.canOpenURL(url as URL) {
-          let imageData = SmsHelper().getImageData(call.getString("image"))
-          
           let pasteboardItems: [String: Any] = [
             "com.instagram.sharedSticker.stickerImage": imageData!,
             "com.instagram.sharedSticker.backgroundTopColor": call.getString("topColor", "#444444"),
@@ -105,5 +148,47 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
       } else {
         call.reject("can not create url")
       }
+    } else {
+      // https://stackoverflow.com/questions/38303413/ios-sharing-image-to-instagram-without-using-a-menu-display
+      //check and see if we can save photos
+      let status = PHPhotoLibrary.authorizationStatus()
+      if (status == PHAuthorizationStatus.authorized) {
+        self.shareToInstagram(image)
+      } else if (status == PHAuthorizationStatus.denied) {
+        print("access denied")
+        call.reject("access denied")
+      } else if (status == PHAuthorizationStatus.notDetermined) {
+        print("access not determined")
+          PHPhotoLibrary.requestAuthorization({ (newStatus) in
+            if (newStatus == PHAuthorizationStatus.authorized) {
+              self.shareToInstagram(image)
+            } else {
+              print("take 2 denied")
+              call.reject("access not determined")
+            }
+          })
+      } else if (status == PHAuthorizationStatus.restricted) {
+        print("restricted access")
+        call.reject("access restricted")
+      }
     }
+  }
+}
+
+
+// https://stackoverflow.com/questions/73261845/swiftui-share-instagram-post
+extension UIImage {
+  func scaleImageWithAspectToWidth(_ toWidth:CGFloat) -> UIImage {
+    let oldWidth:CGFloat = size.width
+    let scaleFactor:CGFloat = toWidth / oldWidth
+    
+    let newHeight = self.size.height * scaleFactor
+    let newWidth = oldWidth * scaleFactor;
+    
+    UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
+    draw(in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
+    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    return newImage!
+  }
 }
