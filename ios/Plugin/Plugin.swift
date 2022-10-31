@@ -119,6 +119,7 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
     }
 
     if (call.getBool("shareToStories", false)) {
+      // https://developers.facebook.com/docs/instagram/sharing-to-stories
       var urlComps = URLComponents(string: "instagram-stories://share")!
       if let appId = call.getString("appId") {
         urlComps.queryItems = [URLQueryItem(name: "source_application", value: appId)]
