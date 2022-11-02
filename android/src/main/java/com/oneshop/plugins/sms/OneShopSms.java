@@ -331,51 +331,68 @@ public class OneShopSms extends Plugin {
         String appId = call.getString("appId", "");
         String topColor = call.getString("topColor", "");
         String bottomColor = call.getString("bottomColor", "");
+        Boolean shareToStories = call.getBoolean("shareToStories", false);
 
-        Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
         try {
-            final String dir = getDownloadDir();
-            Uri fileUri = getFileUriAndSetType(intent, dir, imageString);
-            fileUri =
-                FileProvider.getUriForFile(getContext(), getActivity().getPackageName() + ".sharing.provider", new File(fileUri.getPath()));
-
-            if (appId != "") {
-                intent.putExtra("source_application", appId);
-            }
-
-            // Attach your sticker to the intent from a URI, and set background colors
-            intent.setType("image/jpeg");
-            intent.putExtra("interactive_asset_uri", fileUri);
-
-            if (topColor != "") {
-                intent.putExtra("top_background_color", topColor);
-            }
-            if (bottomColor != "") {
-                intent.putExtra("bottom_background_color", bottomColor);
-            }
-
-            // Instantiate an activity
             Activity activity = getActivity();
+            final String dir = getDownloadDir();
 
-            // Grant URI permissions for the sticker
-            activity.grantUriPermission("com.instagram.android", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (shareToStories) {
+                Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
 
-            // Verify that the activity resolves the intent and start it
-            if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
-                startActivityForResult(call, intent, "onShareResult");
+                Uri fileUri = getFileUriAndSetType(intent, dir, imageString);
+                fileUri =
+                    FileProvider.getUriForFile(
+                        getContext(),
+                        getActivity().getPackageName() + ".sharing.provider",
+                        new File(fileUri.getPath())
+                    );
+
+                if (appId != "") {
+                    intent.putExtra("source_application", appId);
+                }
+
+                // Attach your sticker to the intent from a URI, and set background colors
+                intent.setType("image/jpeg");
+                intent.putExtra("interactive_asset_uri", fileUri);
+
+                if (topColor != "") {
+                    intent.putExtra("top_background_color", topColor);
+                }
+                if (bottomColor != "") {
+                    intent.putExtra("bottom_background_color", bottomColor);
+                }
+
+                // Grant URI permissions for the sticker
+                activity.grantUriPermission("com.instagram.android", fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                // Verify that the activity resolves the intent and start it
+                if (this.bridge.getActivity().getPackageManager().resolveActivity(intent, 0) != null) {
+                    startActivityForResult(call, intent, "onShareResult");
+                }
+                // leaving on background thread, crashes on main thread
+                // if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
+                //     getActivity()
+                //         .runOnUiThread(
+                //             new Runnable() {
+                //                 @Override
+                //                 public void run() {
+                //                     startActivityForResult(call, intent, "onShareResult");
+                //                 }
+                //             }
+                //         );
+                // }
+            } else {
+                Intent share = new Intent(Intent.ACTION_SEND);
+                Uri fileUri = getFileUriAndSetType(share, dir, imageString);
+
+                share.setType("image/*");
+                share.putExtra(Intent.EXTRA_STREAM, fileUri);
+
+                if (activity.getPackageManager().resolveActivity(share, 0) != null) {
+                    activity.startActivity(Intent.createChooser(share, "Share to"));
+                }
             }
-            // leaving on background thread, crashes on main thread
-            // if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
-            //     getActivity()
-            //         .runOnUiThread(
-            //             new Runnable() {
-            //                 @Override
-            //                 public void run() {
-            //                     startActivityForResult(call, intent, "onShareResult");
-            //                 }
-            //             }
-            //         );
-            // }
         } catch (Exception e) {
             call.reject("Something went wrong sharing");
         }
