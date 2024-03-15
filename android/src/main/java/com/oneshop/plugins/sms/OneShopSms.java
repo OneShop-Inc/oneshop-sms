@@ -479,16 +479,15 @@ public class OneShopSms extends Plugin {
 
         if (uris.size() > 0) {
             smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            smsIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
         }
         if (uris.size() > 1 ) {
-            smsIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
             ArrayList<String> uniqueTypes = getUniqueValues(types);
             if (uniqueTypes.size() > 1) {
                 smsIntent.setType("*/*");
             }
         }
 
-        Log.d(TAG, "go" + smsIntent);
         // first try to open messenger app if available
         // smsIntent.setPackage("com.android.mms");
         // doesn't seem to work
