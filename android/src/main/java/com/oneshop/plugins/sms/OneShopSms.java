@@ -436,9 +436,17 @@ public class OneShopSms extends Plugin {
 
         com.getcapacitor.JSArray array = new com.getcapacitor.JSArray();
         com.getcapacitor.JSArray attachments = call.getArray("attachments", array);
-        ArrayList uris = new ArrayList();
-        ArrayList<String> types = new ArrayList<String>();
-        Intent smsIntent = new Intent();
+        ArrayList<Uri> uris = new ArrayList();
+        ArrayList<String> types = new ArrayList();
+
+        Intent smsIntent = new Intent(Intent.ACTION_SEND);
+        smsIntent.putExtra("sms_body", body);
+
+        // NOTE: Use putExtra instead of set, set clears other data
+        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
+        smsIntent.putExtra("address", number);
+        //  smsIntent.putExtra("address", Uri.parse("smsto:" + Uri.encode(number)));
+        smsIntent.setType(MIME_Map.get("txt"));
 
         try {
             final String dir = getDownloadDir();
@@ -457,7 +465,7 @@ public class OneShopSms extends Plugin {
                             new File(fileUri.getPath())
                         );
 
-                    uris.add(getFileNameSms(attachment, i));
+                    uris.add(fileUri);
                     types.add(type);
                 }
 
@@ -469,45 +477,36 @@ public class OneShopSms extends Plugin {
             e.printStackTrace();
         }
 
-
-        if (uris.size() == 1) {
-            smsIntent.setAction(Intent.ACTION_SEND);
-        } else if (uris.size() > 1 ) {
+        if (uris.size() > 0) {
+            smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        if (uris.size() > 1 ) {
             smsIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-          ArrayList<String> uniqueTypes = getUniqueValues(types);
-          if (uniqueTypes.size() > 1) {
-            smsIntent.setType("*/*");
-          }
-        } else {
-
-            smsIntent.setAction(Intent.ACTION_SENDTO);
-
+            ArrayList<String> uniqueTypes = getUniqueValues(types);
+            if (uniqueTypes.size() > 1) {
+                smsIntent.setType("*/*");
+            }
         }
 
-
-
-        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
-        // NOTE: Use putExtra instead of set, set clears other data
-        smsIntent.putExtra("sms_body", body);
-        smsIntent.putExtra("address", Uri.parse("smsto:" + Uri.encode(number)));
-        // smsIntent.putExtra("address", number);
-        smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        // first try to open messanger app if available
-        smsIntent.setPackage("com.android.mms");
+        Log.d(TAG, "go" + smsIntent);
+        // first try to open messenger app if available
+        // smsIntent.setPackage("com.android.mms");
+        // doesn't seem to work
         if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+            Log.d(TAG, "1");
             startActivityForResult(call, smsIntent, "onSmsRequestResult");
             return;
         }
 
-        smsIntent.setPackage("");
-        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            startActivityForResult(call, smsIntent, "onSmsRequestResult");
-            return;
-        }
-        
+        // Doesn't clear as expected
+        //  smsIntent.setPackage("");
+        //  if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+        //      Log.d(TAG, "2");
+        //      startActivityForResult(call, smsIntent, "onSmsRequestResult");
+        //      return;
+        //  }
+        Log.d(TAG, "reject");
         call.reject(ERR_SERVICE_NOT_FOUND);
-        
     }
 
     @Override
