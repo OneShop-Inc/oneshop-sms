@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -130,6 +132,16 @@ public class OneShopSms extends Plugin {
         final String end = fileName.substring(dotIndex + 1, fileName.length()).toLowerCase();
         String fromMap = MIME_Map.get(end);
         return fromMap == null ? type : fromMap;
+    }
+
+    private static ArrayList<String> getUniqueValues(ArrayList<String> list) {
+        // Create a HashSet to store unique values
+        HashSet<String> uniqueSet = new HashSet<>(list);
+
+        // Create a new ArrayList from the unique values in the HashSet
+        ArrayList<String> uniqueList = new ArrayList<>(uniqueSet);
+
+        return uniqueList;
     }
 
     private static final Map<String, String> MIME_Map = new HashMap<String, String>();
@@ -424,36 +436,78 @@ public class OneShopSms extends Plugin {
 
         com.getcapacitor.JSArray array = new com.getcapacitor.JSArray();
         com.getcapacitor.JSArray attachments = call.getArray("attachments", array);
+        ArrayList uris = new ArrayList();
+        ArrayList<String> types = new ArrayList<String>();
+        Intent smsIntent = new Intent();
 
-        Intent smsIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-        smsIntent.putExtra("sms_body", body);
-        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
-        smsIntent.putExtra("address", number);
-        // smsIntent.setData(Uri.parse("smsto:" + Uri.encode(number)));
-        smsIntent.setType("image/*");
         try {
+            final String dir = getDownloadDir();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                ArrayList uris = new ArrayList();
                 for (int i = 0; i < attachments.length(); i++) {
                     String attachment = attachments.getString(i);
+                    String type = getMIMEType(attachment);
+
+                    Uri fileUri = getFileUriAndSetType(smsIntent, dir, attachment);
+
+                    // get a sharable file path
+                    fileUri =
+                        FileProvider.getUriForFile(
+                            getContext(),
+                            getActivity().getPackageName() + ".sharing.provider",
+                            new File(fileUri.getPath())
+                        );
+
                     uris.add(getFileNameSms(attachment, i));
+                    types.add(type);
                 }
+
                 smsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            // Causes TransactionTooLargeException
-            // TODO possibly fixed? https://capacitorjs.com/docs/updating/plugins/3-0
-            // startActivityForResult(call, smsIntent, SMS_INTENT_REQUEST_CODE);
 
-            // Does not trigger handleOnActivityResult
-            // getContext().startActivity(smsIntent);
-            startActivityForResult(call, smsIntent, "onSmsRequestResult");
+
+        if (uris.size() == 1) {
+            smsIntent.setAction(Intent.ACTION_SEND);
+        } else if (uris.size() > 1 ) {
+            smsIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+          ArrayList<String> uniqueTypes = getUniqueValues(types);
+          if (uniqueTypes.size() > 1) {
+            smsIntent.setType("*/*");
+          }
         } else {
-            call.reject(ERR_SERVICE_NOT_FOUND);
+
+            smsIntent.setAction(Intent.ACTION_SENDTO);
+
         }
+
+
+
+        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
+        // NOTE: Use putExtra instead of set, set clears other data
+        smsIntent.putExtra("sms_body", body);
+        smsIntent.putExtra("address", Uri.parse("smsto:" + Uri.encode(number)));
+        // smsIntent.putExtra("address", number);
+        smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        // first try to open messanger app if available
+        smsIntent.setPackage("com.android.mms");
+        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+            startActivityForResult(call, smsIntent, "onSmsRequestResult");
+            return;
+        }
+
+        smsIntent.setPackage("");
+        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+            startActivityForResult(call, smsIntent, "onSmsRequestResult");
+            return;
+        }
+        
+        call.reject(ERR_SERVICE_NOT_FOUND);
+        
     }
 
     @Override
