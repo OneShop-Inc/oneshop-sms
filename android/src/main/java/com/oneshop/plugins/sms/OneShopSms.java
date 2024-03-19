@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -440,13 +439,6 @@ public class OneShopSms extends Plugin {
         ArrayList<String> types = new ArrayList();
 
         Intent smsIntent = new Intent(Intent.ACTION_SEND);
-        smsIntent.putExtra("sms_body", body);
-
-        // NOTE: Use putExtra instead of set, set clears other data
-        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
-        smsIntent.putExtra("address", number);
-        //  smsIntent.putExtra("address", Uri.parse("smsto:" + Uri.encode(number)));
-        smsIntent.setType(MIME_Map.get("txt"));
 
         try {
             final String dir = getDownloadDir();
@@ -455,55 +447,60 @@ public class OneShopSms extends Plugin {
                     String attachment = attachments.getString(i);
                     String type = getMIMEType(attachment);
 
-                    Uri fileUri = getFileUriAndSetType(smsIntent, dir, attachment);
-
                     // get a sharable file path
-                    fileUri =
+                    Uri attachmentUri = getFileUriAndSetType(smsIntent, dir, attachment);
+                    Uri attachmentFileUri =
                         FileProvider.getUriForFile(
                             getContext(),
                             getActivity().getPackageName() + ".sharing.provider",
-                            new File(fileUri.getPath())
+                            new File(attachmentUri.getPath())
                         );
 
-                    uris.add(fileUri);
+                    uris.add(attachmentFileUri);
                     types.add(type);
                 }
-
-                smsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        if (uris.size() > 0) {
+//            String imageUrl = "example url";
+//            Uri testUri = getFileUriAndSetType(smsIntent, dir, imageUrl);
+//            Uri fileUri =
+//                    FileProvider.getUriForFile(
+//                            getContext(),
+//                            getActivity().getPackageName() + ".sharing.provider",
+//                            new File(testUri.getPath())
+//                    );
+//            String type = getMIMEType(imageUrl);
+//            uris.add(fileUri);
+//            smsIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+//            uris.add(fileUri);
+
+            if (uris.size() > 0) {
+                // Note: limited to one for now, array doesn't seem to work, requires send multiple
+                // however send multiple doesn't work with address
+                // possible solution ClipData - wasn't able to get it working at the time
+                // smsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                smsIntent.putExtra(Intent.EXTRA_STREAM, uris.get(0));
+                smsIntent.setType(types.get(0));
+            } else {
+                smsIntent.setType(MIME_Map.get("txt"));
+            }
+
+            // NOTE: Use putExtra instead of set, set clears other data
+            // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
+            smsIntent.putExtra("address", number);
+            smsIntent.putExtra(Intent.EXTRA_TEXT, body);
             smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            smsIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-        }
-        if (uris.size() > 1 ) {
-            ArrayList<String> uniqueTypes = getUniqueValues(types);
-            if (uniqueTypes.size() > 1) {
-                smsIntent.setType("*/*");
+
+            if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                startActivityForResult(call, smsIntent, "onSmsRequestResult");
+                return;
             }
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "error");
         }
 
-        // first try to open messenger app if available
-        // smsIntent.setPackage("com.android.mms");
-        // doesn't seem to work
-        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            Log.d(TAG, "1");
-            startActivityForResult(call, smsIntent, "onSmsRequestResult");
-            return;
-        }
-
-        // Doesn't clear as expected
-        //  smsIntent.setPackage("");
-        //  if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
-        //      Log.d(TAG, "2");
-        //      startActivityForResult(call, smsIntent, "onSmsRequestResult");
-        //      return;
-        //  }
         Log.d(TAG, "reject");
         call.reject(ERR_SERVICE_NOT_FOUND);
     }
