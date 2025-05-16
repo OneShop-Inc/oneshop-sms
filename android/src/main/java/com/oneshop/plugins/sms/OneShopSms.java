@@ -518,7 +518,7 @@ public class OneShopSms extends Plugin {
 
         for (int result : grantResults) {
             if (result == PackageManager.PERMISSION_DENIED) {
-                savedCall.error("User denied permission");
+                savedCall.reject("User denied permission");
                 return;
             }
         }
