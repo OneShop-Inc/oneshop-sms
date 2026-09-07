@@ -496,9 +496,10 @@ public class OneShopSms extends Plugin {
                 return;
             }
 
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-            Log.d(TAG, "error");
+        } catch (Exception e) {
+            Log.d(TAG, "error", e);
+            call.reject(ERR_SERVICE_NOT_FOUND, e);
+            return;
         }
 
         Log.d(TAG, "reject");
