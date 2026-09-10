@@ -355,7 +355,7 @@ public class OneShopSms extends Plugin {
                 fileUri =
                     FileProvider.getUriForFile(
                         getContext(),
-                        getActivity().getPackageName() + ".fileprovider",
+                        getActivity().getPackageName() + ".oneshopsms.fileprovider",
                         new File(fileUri.getPath())
                     );
 
@@ -452,7 +452,7 @@ public class OneShopSms extends Plugin {
                     Uri attachmentFileUri =
                         FileProvider.getUriForFile(
                             getContext(),
-                            getActivity().getPackageName() + ".fileprovider",
+                            getActivity().getPackageName() + ".oneshopsms.fileprovider",
                             new File(attachmentUri.getPath())
                         );
 
