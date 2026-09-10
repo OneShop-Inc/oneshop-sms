@@ -3,7 +3,7 @@ import { CanShareResult, OneShopSmsPlugin, OpenMessengerOptions } from './defini
 
 export class OneShopSmsWeb extends WebPlugin implements OneShopSmsPlugin {
   async openMessenger(options: OpenMessengerOptions): Promise<void> {
-    window.open(`sms:${options.number}&body=${encodeURI(options.body || '')}`, '_self');
+    window.open(`sms:${options.number}&body=${encodeURIComponent(options.body || '')}`, '_self');
   }
 
   async share(): Promise<void> {

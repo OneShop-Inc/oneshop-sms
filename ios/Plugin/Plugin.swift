@@ -80,8 +80,8 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
     PHPhotoLibrary.shared().performChanges({
       let creationRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
       placeHolder = creationRequest.placeholderForCreatedAsset!
-    }, completionHandler: { success, error in
-      guard success, let placeholder = placeHolder else {
+    }, completionHandler: { resolve, reject in
+      guard resolve, let placeholder = placeHolder else {
         completion(nil)
         return
       }
@@ -137,7 +137,7 @@ public class OneShopSms: CAPPlugin, MFMessageComposeViewControllerDelegate {
           ]
           UIPasteboard.general.setItems([pasteboardItems], options:pasteboardOptions)
           DispatchQueue.main.async {
-            UIApplication.shared.open(url) {success in if success {
+            UIApplication.shared.open(url) {resolve in if resolve {
               call.resolve()
             } else {
               call.reject("error opening url")

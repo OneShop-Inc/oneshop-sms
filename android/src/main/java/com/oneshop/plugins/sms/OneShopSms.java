@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -130,6 +131,16 @@ public class OneShopSms extends Plugin {
         final String end = fileName.substring(dotIndex + 1, fileName.length()).toLowerCase();
         String fromMap = MIME_Map.get(end);
         return fromMap == null ? type : fromMap;
+    }
+
+    private static ArrayList<String> getUniqueValues(ArrayList<String> list) {
+        // Create a HashSet to store unique values
+        HashSet<String> uniqueSet = new HashSet<>(list);
+
+        // Create a new ArrayList from the unique values in the HashSet
+        ArrayList<String> uniqueList = new ArrayList<>(uniqueSet);
+
+        return uniqueList;
     }
 
     private static final Map<String, String> MIME_Map = new HashMap<String, String>();
@@ -344,7 +355,7 @@ public class OneShopSms extends Plugin {
                 fileUri =
                     FileProvider.getUriForFile(
                         getContext(),
-                        getActivity().getPackageName() + ".sharing.provider",
+                        getActivity().getPackageName() + ".oneshopsms.fileprovider",
                         new File(fileUri.getPath())
                     );
 
@@ -424,36 +435,75 @@ public class OneShopSms extends Plugin {
 
         com.getcapacitor.JSArray array = new com.getcapacitor.JSArray();
         com.getcapacitor.JSArray attachments = call.getArray("attachments", array);
+        ArrayList<Uri> uris = new ArrayList();
+        ArrayList<String> types = new ArrayList();
 
-        Intent smsIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-        smsIntent.putExtra("sms_body", body);
-        // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
-        smsIntent.putExtra("address", number);
-        // smsIntent.setData(Uri.parse("smsto:" + Uri.encode(number)));
-        smsIntent.setType("image/*");
+        Intent smsIntent = new Intent(Intent.ACTION_SEND);
+
         try {
+            final String dir = getDownloadDir();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                ArrayList uris = new ArrayList();
                 for (int i = 0; i < attachments.length(); i++) {
                     String attachment = attachments.getString(i);
-                    uris.add(getFileNameSms(attachment, i));
-                }
-                smsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            // Causes TransactionTooLargeException
-            // TODO possibly fixed? https://capacitorjs.com/docs/updating/plugins/3-0
-            // startActivityForResult(call, smsIntent, SMS_INTENT_REQUEST_CODE);
+                    String type = getMIMEType(attachment);
 
-            // Does not trigger handleOnActivityResult
-            // getContext().startActivity(smsIntent);
-            startActivityForResult(call, smsIntent, "onSmsRequestResult");
-        } else {
-            call.reject(ERR_SERVICE_NOT_FOUND);
+                    // get a sharable file path
+                    Uri attachmentUri = getFileUriAndSetType(smsIntent, dir, attachment);
+                    Uri attachmentFileUri =
+                        FileProvider.getUriForFile(
+                            getContext(),
+                            getActivity().getPackageName() + ".oneshopsms.fileprovider",
+                            new File(attachmentUri.getPath())
+                        );
+
+                    uris.add(attachmentFileUri);
+                    types.add(type);
+                }
+            }
+
+//            String imageUrl = "example url";
+//            Uri testUri = getFileUriAndSetType(smsIntent, dir, imageUrl);
+//            Uri fileUri =
+//                    FileProvider.getUriForFile(
+//                            getContext(),
+//                            getActivity().getPackageName() + ".sharing.provider",
+//                            new File(testUri.getPath())
+//                    );
+//            String type = getMIMEType(imageUrl);
+//            uris.add(fileUri);
+//            smsIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+//            uris.add(fileUri);
+
+            if (uris.size() > 0) {
+                // Note: limited to one for now, array doesn't seem to work, requires send multiple
+                // however send multiple doesn't work with address
+                // possible solution ClipData - wasn't able to get it working at the time
+                // smsIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                smsIntent.putExtra(Intent.EXTRA_STREAM, uris.get(0));
+                smsIntent.setType(types.get(0));
+            } else {
+                smsIntent.setType(MIME_Map.get("txt"));
+            }
+
+            // NOTE: Use putExtra instead of set, set clears other data
+            // See http://stackoverflow.com/questions/7242190/sending-sms-using-intent-does-not-add-recipients-on-some-devices
+            smsIntent.putExtra("address", number);
+            smsIntent.putExtra(Intent.EXTRA_TEXT, body);
+            smsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            if (smsIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                startActivityForResult(call, smsIntent, "onSmsRequestResult");
+                return;
+            }
+
+        } catch (Exception e) {
+            Log.d(TAG, "error", e);
+            call.reject(ERR_SERVICE_NOT_FOUND, e);
+            return;
         }
+
+        Log.d(TAG, "reject");
+        call.reject(ERR_SERVICE_NOT_FOUND);
     }
 
     @Override
@@ -469,7 +519,7 @@ public class OneShopSms extends Plugin {
 
         for (int result : grantResults) {
             if (result == PackageManager.PERMISSION_DENIED) {
-                savedCall.error("User denied permission");
+                savedCall.reject("User denied permission");
                 return;
             }
         }
