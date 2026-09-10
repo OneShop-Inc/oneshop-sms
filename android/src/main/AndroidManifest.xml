@@ -3,7 +3,7 @@
       >
     <application>
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="com.oneshop.plugins.sms.OneShopSmsFileProvider"
             android:authorities="${applicationId}.oneshopsms.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
